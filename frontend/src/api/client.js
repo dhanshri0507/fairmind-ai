@@ -34,6 +34,13 @@ export async function getReport(auditId) {
   return res.data;
 }
 
+export async function downloadReport(auditId) {
+  const res = await api.get(`/api/report/${auditId}?fmt=download`, {
+    responseType: "blob",
+  });
+  return res.data;
+}
+
 /** GET /api/reports — list recent audits */
 export async function listReports() {
   const res = await api.get("/api/reports");

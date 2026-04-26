@@ -1,4 +1,5 @@
 import MetricCard from "./MetricCard";
+import { downloadReport } from "../api/client";
 import CasualToggle from "./CasualToggle";
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
@@ -63,9 +64,8 @@ export default function Dashboard({ results }) {
         <button
           onClick={async () => {
             try {
-              const res = await fetch(`${BASE_URL}/api/report/${audit_id}?fmt=download`);
-              if (!res.ok) throw new Error("Failed to download report");
-              const blob = await res.blob();
+              const blobData = await downloadReport(audit_id);
+              const blob = new Blob([blobData], { type: "application/pdf" });
               const url = URL.createObjectURL(blob);
               const a = document.createElement("a");
               a.href = url;

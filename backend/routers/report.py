@@ -67,6 +67,7 @@ async def get_report(audit_id: str, fmt: str = "json"):
             content=buffer.getvalue(),
             media_type="application/pdf",
             headers={
+                "Content-Type": "application/pdf",
                 "Content-Disposition": f'attachment; filename="fairmind_report_{audit_id[:8]}.pdf"'
             },
         )

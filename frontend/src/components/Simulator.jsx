@@ -172,7 +172,7 @@ export default function Simulator() {
               <BarChart data={chartData} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,120,180,0.1)" />
                 <XAxis dataKey="name" tick={{ fill: "#64748b", fontSize: 11 }} />
-                <YAxis tick={{ fill: "#64748b", fontSize: 11 }} domain={[0, 1]} />
+                <YAxis tick={{ fill: "#64748b", fontSize: 11 }} />
                 <Tooltip
                   contentStyle={{ background: "#111827", border: "1px solid #1e3a5f", borderRadius: 8, color: "#f0f4ff" }}
                   formatter={(v) => v.toFixed(3)}
