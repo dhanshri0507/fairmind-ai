@@ -16,6 +16,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 from .prediction_simulator import PredictionSimulator
+import numpy as np
 
 
 def _binary_from_label(series: pd.Series, positive_label: str) -> pd.Series:
@@ -248,6 +249,26 @@ def run_full_audit(
     }
 
 
+def _compute_reweighing_weights(df: pd.DataFrame, target_col: str, protected_col: str, positive_label: str) -> pd.Series:
+    y = _binary_from_label(df[target_col], positive_label)
+    g = df[protected_col].astype(str)
+    
+    n = len(df)
+    weights = np.ones(n)
+    
+    for y_val in y.unique():
+        for g_val in g.unique():
+            mask = (y == y_val) & (g == g_val)
+            if mask.sum() == 0:
+                continue
+            p_y = (y == y_val).sum() / n
+            p_g = (g == g_val).sum() / n
+            p_gy = mask.sum() / n
+            w = (p_g * p_y) / p_gy
+            weights[mask] = w
+            
+    return pd.Series(weights, index=df.index)
+
 def simulate_mitigation(
     df: pd.DataFrame,
     target_col: str,
@@ -258,15 +279,31 @@ def simulate_mitigation(
     """
     Simulate a bias mitigation strategy and return before/after metrics.
     """
-    simulator = PredictionSimulator(bias_strength=0.3)
-    
-    # 1. Generate biased baseline predictions
-    y_pred_before_np = simulator.predict(df, target_col, protected_col, positive_label)
-    y_pred_before = pd.Series(y_pred_before_np, index=df.index)
+    # 1. Generate biased baseline predictions (unmitigated)
+    clf_before, X, _, _ = _fit_base_estimator(df, target_col, protected_col, positive_label)
+    y_pred_before = pd.Series(clf_before.predict(X), index=df.index)
 
     # 2. Apply simulated mitigation
-    y_pred_after_np = simulator.mitigate_predictions(df, protected_col, y_pred_before_np)
-    y_pred_after = pd.Series(y_pred_after_np, index=df.index)
+    y_true = _binary_from_label(df[target_col], positive_label)
+    sensitive_features = df[protected_col].astype(str)
+
+    if strategy == "reweighing":
+        weights = _compute_reweighing_weights(df, target_col, protected_col, positive_label)
+        clf_after, _, _, _ = _fit_base_estimator(df, target_col, protected_col, positive_label, sample_weight=weights)
+        y_pred_after = pd.Series(clf_after.predict(X), index=df.index)
+    elif strategy in ["threshold", "equalized_odds"]:
+        constraint = "demographic_parity" if strategy == "threshold" else "equalized_odds"
+        clf_base, _, _, _ = _fit_base_estimator(df, target_col, protected_col, positive_label)
+        postprocess_est = ThresholdOptimizer(
+            estimator=clf_base,
+            constraints=constraint,
+            predict_method="predict_proba"
+        )
+        postprocess_est.fit(X, y_true, sensitive_features=sensitive_features)
+        y_pred_after = pd.Series(postprocess_est.predict(X, sensitive_features=sensitive_features), index=df.index)
+    else:
+        # Fallback if not implemented
+        y_pred_after = y_pred_before.copy()
 
     before = _metrics_from_predictions(df, target_col, protected_col, positive_label, y_pred_before)
     after = _metrics_from_predictions(df, target_col, protected_col, positive_label, y_pred_after)

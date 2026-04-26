@@ -61,14 +61,21 @@ export default function Dashboard({ results }) {
           </span>
         </div>
         <button
-          onClick={() => {
-            const blob = new Blob([JSON.stringify(results, null, 2)], { type: "text/plain" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `fairmind_report_${audit_id?.slice(0, 8) || "audit"}.json.txt`;
-            a.click();
-            setTimeout(() => URL.revokeObjectURL(url), 500);
+          onClick={async () => {
+            try {
+              const res = await fetch(`${BASE_URL}/api/report/${audit_id}?fmt=download`);
+              if (!res.ok) throw new Error("Failed to download report");
+              const blob = await res.blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `fairmind_report_${audit_id?.slice(0, 8) || "audit"}.pdf`;
+              a.click();
+              setTimeout(() => URL.revokeObjectURL(url), 500);
+            } catch (err) {
+              console.error(err);
+              alert("Could not download the PDF report.");
+            }
           }}
           className="btn btn-ghost btn-sm"
           style={{ marginLeft: "auto", whiteSpace: "nowrap" }}

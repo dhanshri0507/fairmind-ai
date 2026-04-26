@@ -50,7 +50,7 @@ export default function App() {
           <section className="hero">
             <div className="hero-tag">
               <span>🤖</span>
-              Build with AI · Solution Challenge 2026
+              Hack2Skill Build with AI 2026 · Solution Challenge
             </div>
             <h1 className="hero-title">
               Detect &amp; Mitigate<br />
@@ -58,7 +58,7 @@ export default function App() {
             </h1>
             <p className="hero-subtitle">
               Upload your dataset. FairMind analyses fairness metrics across protected groups
-              and explains the results in plain language — powered by Gemini 1.5 Pro.
+              and explains the results in plain language — powered by Gemini-2.5-flash.
             </p>
             <div className="hero-stats">
               <div className="hero-stat">
@@ -67,7 +67,7 @@ export default function App() {
               </div>
               <div className="hero-stat-divider" />
               <div className="hero-stat">
-                <span className="hero-stat-value">Gemini 1.5</span>
+                <span className="hero-stat-value">Gemini 2.5</span>
                 <span className="hero-stat-label">AI Explainer</span>
               </div>
               <div className="hero-stat-divider" />
@@ -135,7 +135,7 @@ export default function App() {
                 {[
                   ["Backend", "FastAPI · Python 3.11"],
                   ["Fairness Engine", "fairlearn · aif360"],
-                  ["AI Explainer", "Google Gemini 1.5 Pro"],
+                  ["AI Explainer", "Google Gemini 2.5 Flash"],
                   ["Database", "Supabase (PostgreSQL)"],
                   ["Frontend", "React 18 · Recharts"],
                   ["Deployment", "Railway · Vercel"],

@@ -47,7 +47,7 @@ export default function CasualToggle({ auditId, results }) {
           </div>
           Gemini Bias Explainer
           <span style={{ fontSize: "0.72rem", color: "#64748b", fontWeight: 400 }}>
-            Powered by Gemini 1.5 Pro
+            Powered by Gemini 2.5 Flash
           </span>
         </span>
 
