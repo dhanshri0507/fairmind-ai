@@ -142,7 +142,20 @@ export default function Dashboard({ results }) {
                   <Radar name="DP Gap" dataKey="DP Gap" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.25} />
                   <Radar name="EO Gap" dataKey="EO Gap" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.2} />
                   <Legend wrapperStyle={{ fontSize: 12, color: "#94a3b8" }} />
-                  <Tooltip contentStyle={{ background: "#111827", border: "1px solid #1e3a5f", borderRadius: 8, color: "#f0f4ff" }} />
+                  <Tooltip
+                    contentStyle={{
+                      background: "rgba(15, 23, 42, 0.95)",
+                      border: "1.5px solid #3b82f6",
+                      borderRadius: 10,
+                      color: "#f1f5f9",
+                      boxShadow: "0 0 18px rgba(59,130,246,0.35)",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      padding: "8px 14px",
+                    }}
+                    labelStyle={{ color: "#93c5fd", fontWeight: 700, marginBottom: 4 }}
+                    itemStyle={{ color: "#e2e8f0" }}
+                  />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
@@ -161,9 +174,20 @@ export default function Dashboard({ results }) {
                     <XAxis dataKey="group" tick={{ fill: "#64748b", fontSize: 11 }} />
                     <YAxis tick={{ fill: "#64748b", fontSize: 11 }} unit="%" domain={[0, 100]} />
                     <Tooltip
-                      contentStyle={{ background: "#111827", border: "1px solid #1e3a5f", borderRadius: 8, color: "#f0f4ff" }}
-                      formatter={(v) => `${v}%`}
-                      cursor={{ fill: "rgba(255,255,255,0.05)" }}
+                      contentStyle={{
+                        background: "rgba(15, 23, 42, 0.95)",
+                        border: "1.5px solid #8b5cf6",
+                        borderRadius: 10,
+                        color: "#f1f5f9",
+                        boxShadow: "0 0 18px rgba(139,92,246,0.35)",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        padding: "8px 14px",
+                      }}
+                      labelStyle={{ color: "#c4b5fd", fontWeight: 700, marginBottom: 4, fontSize: 13 }}
+                      itemStyle={{ color: "#e2e8f0", fontWeight: 600 }}
+                      formatter={(v, name) => [`${v}%`, name]}
+                      cursor={{ fill: "rgba(139,92,246,0.08)" }}
                     />
                     <Bar dataKey="Positive Rate" radius={[6, 6, 0, 0]}>
                       {groupBarData.map((_, i) => (
