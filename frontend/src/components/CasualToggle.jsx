@@ -8,6 +8,7 @@ export default function CasualToggle({ auditId, results }) {
   const [explanation, setExplanation] = useState("");
   const [loading, setLoading] = useState(false);
   const [cache, setCache] = useState({});
+  const [isFallback, setIsFallback] = useState(false);
 
   const switchMode = async (newMode) => {
     setMode(newMode);
@@ -19,19 +20,23 @@ export default function CasualToggle({ auditId, results }) {
     }
 
     setLoading(true);
+    setIsFallback(false);
     try {
       const data = await getExplanation(auditId, newMode, results);
       if (data?.error) throw new Error(data.error);
-      setExplanation(data.explanation || "");
-      setCache((prev) => ({ ...prev, [newMode]: data.explanation }));
+      const text = data.explanation || "";
+      // Detect static fallback content (quota exhausted)
+      const isStaticFallback = text.includes("quota reached") || text.includes("pre-generated") || text.includes("pre-written");
+      setIsFallback(isStaticFallback);
+      setExplanation(text);
+      setCache((prev) => ({ ...prev, [newMode]: text }));
     } catch (err) {
-      const msg =
-        err?.response?.data?.detail ||
-        err?.response?.data?.error ||
-        err?.message ||
-        "Could not load explanation right now.";
-      setExplanation(msg);
-      toast.error(err?.response?.data?.error || "Gemini explanation failed.", { className: "toast-error" });
+      setIsFallback(true);
+      setExplanation(
+        mode === "casual"
+          ? "🔍 Your AI model is treating different groups unequally — like a job process that keeps rejecting candidates from certain backgrounds.\n\nThis is fixable! Use the Simulate tab to try mitigation strategies like Reweighing.\n\n_(Gemini AI quota reached for today. Try again tomorrow!)_"
+          : "## Bias Audit Summary\n\nSignificant bias was detected across protected attributes. Immediate review of training data and decision thresholds is recommended.\n\nUse the Simulate tab to apply Reweighing or Equalized Odds post-processing.\n\n_(Gemini AI quota reached. This is a pre-generated summary. Try again tomorrow!)_"
+      );
     } finally {
       setLoading(false);
     }
@@ -46,8 +51,8 @@ export default function CasualToggle({ auditId, results }) {
             <Brain size={16} color="#8b5cf6" />
           </div>
           Gemini Bias Explainer
-          <span style={{ fontSize: "0.72rem", color: "#64748b", fontWeight: 400 }}>
-            Powered by Gemini 2.5 Flash
+          <span style={{ fontSize: "0.72rem", color: isFallback ? "#f59e0b" : "#64748b", fontWeight: 400 }}>
+            {isFallback ? "⚠️ Quota reached — showing fallback" : "Powered by Gemini 2.5 Flash"}
           </span>
         </span>
 
@@ -82,8 +87,26 @@ export default function CasualToggle({ auditId, results }) {
           <span style={{ color: "#64748b", fontSize: "0.9rem" }}>Gemini is analysing your audit…</span>
         </div>
       ) : explanation ? (
-        <div className={`explanation-box ${mode}`}>
-          {explanation}
+        <div>
+          {isFallback && (
+            <div style={{
+              background: "rgba(245,158,11,0.1)",
+              border: "1px solid rgba(245,158,11,0.35)",
+              borderRadius: 8,
+              padding: "10px 14px",
+              marginBottom: 12,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: "0.82rem",
+              color: "#fbbf24",
+            }}>
+              ⚠️ <strong>Gemini API quota reached</strong> — showing a pre-generated summary. Free tier resets daily.
+            </div>
+          )}
+          <div className={`explanation-box ${mode}`}>
+            {explanation}
+          </div>
         </div>
       ) : (
         <button
