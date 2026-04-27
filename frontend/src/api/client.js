@@ -34,10 +34,13 @@ export async function getReport(auditId) {
   return res.data;
 }
 
-export async function downloadReport(auditId) {
-  const res = await api.get(`/api/report/${auditId}?fmt=download`, {
-    responseType: "blob",
-  });
+/** POST /api/report/generate — generate PDF from audit data (no Supabase needed) */
+export async function downloadReport(auditData) {
+  const res = await api.post(
+    "/api/report/generate",
+    { audit_data: auditData },
+    { responseType: "blob" }
+  );
   return res.data;
 }
 

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import MetricCard from "./MetricCard";
 import { downloadReport } from "../api/client";
 import CasualToggle from "./CasualToggle";
@@ -23,6 +24,8 @@ function gapColor(gap) {
 }
 
 export default function Dashboard({ results }) {
+  const [downloadingReport, setDownloadingReport] = useState(false);
+
   if (!results) return null;
 
   const { audit_id, fairness_score, overall_bias_detected, dataset_size, per_attribute, filename } = results;
@@ -63,8 +66,9 @@ export default function Dashboard({ results }) {
         </div>
         <button
           onClick={async () => {
+            setDownloadingReport(true);
             try {
-              const blobData = await downloadReport(audit_id);
+              const blobData = await downloadReport(results);
               const blob = new Blob([blobData], { type: "application/pdf" });
               const url = URL.createObjectURL(blob);
               const a = document.createElement("a");
@@ -75,12 +79,17 @@ export default function Dashboard({ results }) {
             } catch (err) {
               console.error(err);
               alert("Could not download the PDF report.");
+            } finally {
+              setDownloadingReport(false);
             }
           }}
           className="btn btn-ghost btn-sm"
           style={{ marginLeft: "auto", whiteSpace: "nowrap" }}
+          disabled={downloadingReport}
         >
-          <Download size={14} /> Download Report
+          {downloadingReport
+            ? <><div className="spinner" style={{ width: 14, height: 14 }} /> Generating…</>
+            : <><Download size={14} /> Download Report</>}
         </button>
       </div>
 
