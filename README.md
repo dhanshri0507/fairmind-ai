@@ -220,12 +220,6 @@ Use it to test the full bias detection → explain → simulate → report flow.
 
 ---
 
-## 📄 License
-
-MIT License — see [LICENSE](LICENSE) for details.
-
----
-
 <div align="center">
   Built with ❤️ for <strong>Google Build with AI · Solution Challenge 2026</strong>
 </div>
